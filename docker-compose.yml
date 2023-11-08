@@ -1,0 +1,54 @@
+version: '3.1'
+
+services:
+
+  db:
+    image: mariadb
+    container_name: db
+    restart: always
+    environment:
+       MARIADB_ROOT_PASSWORD: ${PSWD}
+       MYSQL_DATABASE: ${DATABASE}
+    env_file:
+       settings.env
+    volumes:
+      - ./data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - main_net
+    healthcheck:
+      test: ["CMD", "echo 'SELECT version();'| mysql"]
+      timeout: 5s
+      retries: 3
+
+  filter:
+    build:
+      context: .
+      dockerfile: ./service2/Dockerfile
+    env_file:
+      settings.env
+    restart: no
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - main_net
+
+  web:
+    build:
+      dockerfile: ./Dockerfile
+    restart: on-failure
+    env_file:
+      settings.env
+    depends_on:
+      - db
+      - filter
+    ports:
+      - "8000:8000"
+    networks:
+      - main_net
+
+networks:
+  main_net:
+    driver: bridge
