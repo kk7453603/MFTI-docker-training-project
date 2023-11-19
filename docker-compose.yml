@@ -4,13 +4,13 @@ services:
 
   db:
     image: mariadb
-    container_name: db
+    container_name: ${DB_HOST}
     restart: always
+    env_file:
+      - .env
     environment:
        MARIADB_ROOT_PASSWORD: ${PSWD}
        MYSQL_DATABASE: ${DATABASE}
-    env_file:
-       settings.env
     volumes:
       - ./data:/var/lib/mysql
     ports:
@@ -18,20 +18,22 @@ services:
     networks:
       - main_net
     healthcheck:
-      test: ["CMD", "echo 'SELECT version();'| mysql"]
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      interval: 15s
       timeout: 5s
       retries: 3
+
 
   filter:
     build:
       context: .
       dockerfile: ./service2/Dockerfile
     env_file:
-      settings.env
+      .env
     restart: no
     depends_on:
-      db:
-        condition: service_healthy
+       db:
+         condition: service_healthy
     networks:
       - main_net
 
@@ -40,9 +42,8 @@ services:
       dockerfile: ./Dockerfile
     restart: on-failure
     env_file:
-      settings.env
+      .env
     depends_on:
-      - db
       - filter
     ports:
       - "8000:8000"
