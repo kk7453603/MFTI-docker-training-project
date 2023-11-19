@@ -24,7 +24,7 @@ services:
       retries: 3
 
 
-  filter:
+  filler:
     build:
       context: .
       dockerfile: ./service2/Dockerfile
@@ -43,7 +43,7 @@ services:
     env_file:
       .env
     depends_on:
-      - filter
+      - filler
     ports:
       - "8000:8000"
     networks:
