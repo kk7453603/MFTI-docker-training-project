@@ -38,7 +38,7 @@ services:
 
   web:
     build:
-      context: backend
+      context: .
       dockerfile: ./Dockerfile
     restart: on-failure
     env_file:
