@@ -30,7 +30,7 @@ try:
 except mariadb.Error as e:
     print(e)
 
-with open("data.csv") as f:
+with open("../data.csv") as f:
     reader = csv.reader(f)
     reader.__next__()
     for row in reader:
