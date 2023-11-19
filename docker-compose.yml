@@ -30,7 +30,6 @@ services:
       dockerfile: ./service2/Dockerfile
     env_file:
       .env
-    restart: no
     depends_on:
        db:
          condition: service_healthy
