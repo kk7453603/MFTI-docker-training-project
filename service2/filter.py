@@ -44,6 +44,6 @@ conn.commit()
 cur.execute("SELECT * FROM Users;")
 res = cur.fetchall()
 print(*res)
-
+#
 conn.close()
 exit(0)
