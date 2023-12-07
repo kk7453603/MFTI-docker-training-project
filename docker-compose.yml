@@ -3,14 +3,14 @@ version: '3.1'
 services:
 
   db:
-    image: bitnami/mariadb
+    image: mariadb:jammy
     container_name: ${DB_HOST}
     restart: always
     env_file:
       - .env
     environment:
        MARIADB_ROOT_PASSWORD: ${PSWD}
-       MARIADB_DATABASE: ${DATABASE}
+       MYSQL_DATABASE: ${DATABASE}
     volumes:
       - ./data:/var/lib/mysql
     ports:
@@ -18,10 +18,10 @@ services:
     networks:
       - main_net
     healthcheck:
-      test: [ 'CMD', '/opt/bitnami/scripts/mariadb/healthcheck.sh' ]
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
       interval: 15s
       timeout: 5s
-      retries: 6
+      retries: 3
 
 
   filler:
