@@ -1,0 +1,55 @@
+version: '3.1'
+
+services:
+
+  db:
+    image: mariadb:jammy
+    container_name: ${DB_HOST}
+    restart: always
+    env_file:
+      - .env
+    environment:
+       MARIADB_ROOT_PASSWORD: ${PSWD}
+       MYSQL_DATABASE: ${DATABASE}
+    volumes:
+      - ./data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - main_net
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+
+  filler:
+    build:
+      context: .
+      dockerfile: ./service2/Dockerfile
+    env_file:
+      .env
+    depends_on:
+       db:
+         condition: service_healthy
+    networks:
+      - main_net
+
+  web:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    restart: on-failure
+    env_file:
+      .env
+    depends_on:
+      - filler
+    ports:
+      - "8000:8000"
+    networks:
+      - main_net
+
+networks:
+  main_net:
+    driver: bridge
